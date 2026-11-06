@@ -1,0 +1,40 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Datasets and caches (~2.8 GB)
+data/
+*.arrow
+
+# Model weights, checkpoints, and experiment outputs (~36.8 GB)
+results/
+tmp_trainer/
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
+
+# Gradio cache & flagged interactions
+.gradio/
+flagged/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor
+.vscode/
+.idea/
+

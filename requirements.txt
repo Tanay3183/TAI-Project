@@ -1,0 +1,11 @@
+torch
+transformers
+datasets
+scikit-learn
+matplotlib
+accelerate
+gradio
+pandas
+numpy
+tqdm
+
