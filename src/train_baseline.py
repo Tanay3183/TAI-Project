@@ -9,18 +9,14 @@ from sklearn.metrics import roc_auc_score
 
 def compute_metrics(eval_pred):
     logits, labels = eval_pred
-    # Sigmoid to get probabilities
-    probs = 1 / (1 + np.exp(-logits))
-    
-    # Extract probability of class 1 if needed
-    if probs.ndim > 1 and probs.shape[1] > 1:
-        probs = probs[:, 1]
+    if logits.ndim > 1 and logits.shape[1] > 1:
+        logits = logits[:, 0]
+        labels = labels[:, 0]
     else:
-        probs = probs.squeeze()
+        logits = logits.squeeze()
+        labels = labels.squeeze()
         
-    labels = labels.squeeze()
-    
-    # Check minimum counts to guard roc_auc_score
+    probs = 1 / (1 + np.exp(-logits))
     if len(np.unique(labels)) < 2:
         return {"roc_auc": 0.0}
         
@@ -112,9 +108,12 @@ def train_baseline(data_dir="data", output_dir="results/M0_baseline", seed=42, d
     # Save test-set probabilities
     print("Generating test-set probabilities...")
     predictions = trainer.predict(test_ds_filtered)
-    logits = predictions.predictions
-    probs = 1 / (1 + np.exp(-logits))
-    probs = probs.squeeze().tolist()
+    raw_preds = predictions.predictions
+    if raw_preds.ndim > 1 and raw_preds.shape[1] > 1:
+        primary_logits = raw_preds[:, 0]
+    else:
+        primary_logits = raw_preds.squeeze()
+    probs = (1 / (1 + np.exp(-primary_logits))).squeeze().tolist()
     
     # Add predicted probabilities back to the original test dataset for later auditing
     print("Saving test-set probabilities to disk...")
@@ -134,6 +133,8 @@ def train_baseline(data_dir="data", output_dir="results/M0_baseline", seed=42, d
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--data_dir", type=str, default="data", help="Directory containing dataset splits")
+    parser.add_argument("--output_dir", type=str, default="results/M0_baseline", help="Directory to save model")
     parser.add_argument("--debug", action="store_true", help="Run with minimal steps for quick testing")
     args = parser.parse_args()
-    train_baseline(debug=args.debug)
+    train_baseline(data_dir=args.data_dir, output_dir=args.output_dir, debug=args.debug)

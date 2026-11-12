@@ -89,6 +89,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--prob_col", type=str, default="M0_prob")
+    parser.add_argument("--data_dir", type=str, default="data", help="Directory containing evaluated test dataset")
     parser.add_argument("--output", type=str, default=None)
     args = parser.parse_args()
     
@@ -96,4 +97,4 @@ if __name__ == "__main__":
         model_name = args.prob_col.replace("_prob", "") if "_prob" in args.prob_col else args.prob_col
         args.output = f"results/{model_name}/audit.json"
         
-    audit_model(prob_col=args.prob_col, output_file=args.output)
+    audit_model(data_dir=args.data_dir, prob_col=args.prob_col, output_file=args.output)

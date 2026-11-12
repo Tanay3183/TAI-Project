@@ -1,0 +1,50 @@
+[
+    {
+        "Identity":"male",
+        "Subgroup AUC":0.8342199723,
+        "BPSN AUC":0.9427750285,
+        "Notes":"OK"
+    },
+    {
+        "Identity":"female",
+        "Subgroup AUC":0.8671379977,
+        "BPSN AUC":0.9537909466,
+        "Notes":"OK"
+    },
+    {
+        "Identity":"black",
+        "Subgroup AUC":0.8755007685,
+        "BPSN AUC":0.9589941366,
+        "Notes":"OK"
+    },
+    {
+        "Identity":"white",
+        "Subgroup AUC":0.8552872907,
+        "BPSN AUC":0.945589957,
+        "Notes":"OK"
+    },
+    {
+        "Identity":"muslim",
+        "Subgroup AUC":0.8482292264,
+        "BPSN AUC":0.9599721448,
+        "Notes":"OK"
+    },
+    {
+        "Identity":"christian",
+        "Subgroup AUC":0.8489755713,
+        "BPSN AUC":0.9602706079,
+        "Notes":"OK"
+    },
+    {
+        "Identity":"jewish",
+        "Subgroup AUC":0.8870686433,
+        "BPSN AUC":0.9721761424,
+        "Notes":"OK"
+    },
+    {
+        "Identity":"homosexual_bisexual",
+        "Subgroup AUC":0.838539745,
+        "BPSN AUC":0.9443748396,
+        "Notes":"OK"
+    }
+]

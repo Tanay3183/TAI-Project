@@ -84,26 +84,51 @@ def run_tests():
     else:
         print("Some unit tests failed. Check regex logic.")
         
-def augment_dataset(data_dir="data"):
+def augment_dataset(data_dir="data", model_name="distilbert-base-uncased"):
     """
     Loads the train dataset, generates counterfactual text for each row, 
-    tokenizes it into `cf_input_ids`, and saves the augmented dataset.
+    tokenizes it into `cf_input_ids` with Head+Tail truncation, and saves the augmented dataset.
     """
     print("Loading train dataset for CDA augmentation...")
     train_ds = load_from_disk(os.path.join(data_dir, "train"))
     
-    print("Initializing Tokenizer...")
-    tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
+    print(f"Initializing Tokenizer ({model_name})...")
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
     
+    max_len = 128
+    head_len = 63
+    tail_len = 63
+    cls_id = tokenizer.cls_token_id or tokenizer.bos_token_id or 101
+    sep_id = tokenizer.sep_token_id or tokenizer.eos_token_id or 102
+    pad_id = tokenizer.pad_token_id or 0
+
     def add_cf_columns(batch):
         # 1. Swap the text
         cf_texts = [swap_identities(text) for text in batch["text"]]
         batch["cf_text"] = cf_texts
         
-        # 2. Tokenize the swapped text
-        tokens = tokenizer(cf_texts, padding="max_length", truncation=True, max_length=128)
-        batch["cf_input_ids"] = tokens["input_ids"]
-        batch["cf_attention_mask"] = tokens["attention_mask"]
+        # 2. Tokenize the swapped text using Head+Tail truncation
+        batch_ids = tokenizer(cf_texts, truncation=False, padding=False)["input_ids"]
+        cf_input_ids = []
+        cf_attention_mask = []
+        
+        for ids in batch_ids:
+            core_ids = [t for t in ids if t not in (cls_id, sep_id, pad_id)]
+            if len(core_ids) <= (max_len - 2):
+                seq = [cls_id] + core_ids + [sep_id]
+                pad_count = max_len - len(seq)
+                cf_input_ids.append(seq + [pad_id] * pad_count)
+                cf_attention_mask.append([1] * len(seq) + [0] * pad_count)
+            else:
+                head = core_ids[:head_len]
+                tail = core_ids[-tail_len:]
+                seq = [cls_id] + head + tail + [sep_id]
+                inp = seq[:max_len]
+                cf_input_ids.append(inp)
+                cf_attention_mask.append([1] * len(inp))
+                
+        batch["cf_input_ids"] = cf_input_ids
+        batch["cf_attention_mask"] = cf_attention_mask
         
         return batch
 
@@ -134,9 +159,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--test", action="store_true", help="Run unit tests")
     parser.add_argument("--augment", action="store_true", help="Augment train dataset")
+    parser.add_argument("--data_dir", type=str, default="data", help="Directory containing dataset splits")
+    parser.add_argument("--model_name", type=str, default="distilbert-base-uncased", help="Backbone tokenizer name")
     args = parser.parse_args()
     
     if args.test or not args.augment:
         run_tests()
     if args.augment:
-        augment_dataset()
+        augment_dataset(data_dir=args.data_dir, model_name=args.model_name)

@@ -1,0 +1,144 @@
+{
+  "builder_name": "parquet",
+  "citation": "",
+  "config_name": "default",
+  "dataset_name": "civil_comments",
+  "dataset_size": 660735148,
+  "description": "",
+  "download_size": 422061071,
+  "features": {
+    "text": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "toxicity": {
+      "dtype": "float32",
+      "_type": "Value"
+    },
+    "severe_toxicity": {
+      "dtype": "float32",
+      "_type": "Value"
+    },
+    "obscene": {
+      "dtype": "float32",
+      "_type": "Value"
+    },
+    "threat": {
+      "dtype": "float32",
+      "_type": "Value"
+    },
+    "insult": {
+      "dtype": "float32",
+      "_type": "Value"
+    },
+    "identity_attack": {
+      "dtype": "float32",
+      "_type": "Value"
+    },
+    "sexual_explicit": {
+      "dtype": "float32",
+      "_type": "Value"
+    },
+    "labels": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "aux_labels": {
+      "feature": {
+        "dtype": "float64",
+        "_type": "Value"
+      },
+      "_type": "List"
+    },
+    "male_mask": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "female_mask": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "black_mask": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "white_mask": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "muslim_mask": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "christian_mask": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "jewish_mask": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "homosexual_bisexual_mask": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "subgroup_masks": {
+      "feature": {
+        "dtype": "int64",
+        "_type": "Value"
+      },
+      "_type": "List"
+    },
+    "input_ids": {
+      "feature": {
+        "dtype": "int32",
+        "_type": "Value"
+      },
+      "_type": "List"
+    },
+    "attention_mask": {
+      "feature": {
+        "dtype": "int8",
+        "_type": "Value"
+      },
+      "_type": "List"
+    },
+    "M2_prob": {
+      "dtype": "float64",
+      "_type": "Value"
+    }
+  },
+  "homepage": "",
+  "license": "",
+  "size_in_bytes": 1082796219,
+  "splits": {
+    "train": {
+      "name": "train",
+      "num_bytes": 596384434,
+      "num_examples": 1804874,
+      "shard_lengths": [
+        1504437,
+        300437
+      ],
+      "dataset_name": "civil_comments"
+    },
+    "validation": {
+      "name": "validation",
+      "num_bytes": 32302035,
+      "num_examples": 97320,
+      "dataset_name": "civil_comments"
+    },
+    "test": {
+      "name": "test",
+      "num_bytes": 32048679,
+      "num_examples": 97320,
+      "dataset_name": "civil_comments"
+    }
+  },
+  "version": {
+    "version_str": "0.0.0",
+    "major": 0,
+    "minor": 0,
+    "patch": 0
+  }
+}

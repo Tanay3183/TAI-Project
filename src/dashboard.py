@@ -9,10 +9,14 @@ from src.evaluate import ToxicityEvaluator
 
 import pandas as pd
 
-# Point to the saved models
-# We use M0 (Baseline) and M2 (Debiased - CDA)
-m0_path = os.path.join("results", "M0_baseline", "final_model")
-debiased_path = os.path.join("results", "M2", "final_model") 
+# Point to the saved models (auto-detect results_identity or results)
+m0_path = os.path.join("results_identity", "M0_baseline", "final_model")
+if not os.path.exists(m0_path):
+    m0_path = os.path.join("results", "M0_baseline", "final_model")
+
+debiased_path = os.path.join("results_identity", "M2", "final_model") 
+if not os.path.exists(debiased_path):
+    debiased_path = os.path.join("results", "M2", "final_model") 
 
 print("Initializing Evaluator (this might take a few seconds to load both models into memory)...")
 evaluator = ToxicityEvaluator(m0_path, debiased_path)
