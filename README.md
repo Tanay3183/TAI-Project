@@ -15,7 +15,11 @@ Technical implementation of a multi-stage debiasing pipeline for NLP toxicity cl
 * **Dataset:** Jigsaw Civil Comments (1.8M comments). Curated subset of 120,000 comments (100k train, 10k val, 10k test).
 * **Identity Curation:** Regex scanning with word-boundary checks (`\b`) prioritizing 100% of rare identity mentions (`Jewish`, `LGBTQ+`, `Muslim`, `Black`). Fixed 35% identity-bearing / 65% background distribution.
 * **Head + Tail Truncation ($63 + 63$ tokens):**
-  $$\mathbf{x} = \text{[CLS]} \oplus \mathbf{x}_{1:63} \oplus \mathbf{x}_{(n-63):n} \oplus \text{[SEP]}$$
+
+$$
+\mathbf{x} = \text{[CLS]} \oplus \mathbf{x}_{1:63} \oplus \mathbf{x}_{(n-63):n} \oplus \text{[SEP]}
+$$
+
 * **Counterfactual Data Augmentation (CDA):** Single-pass bidirectional regex dictionary producing 200,000 paired training examples $(x, x')$ where $y' = y$.
 
 ---
@@ -27,24 +31,48 @@ Technical implementation of a multi-stage debiasing pipeline for NLP toxicity cl
   * Auxiliary Heads ($h_1 \dots h_6$): `severe_toxicity`, `obscene`, `threat`, `insult`, `identity_attack`, `sexual_explicit`.
 
 #### Differentiable Power-Mean Mimic Loss ($p = 5.0$)
-Per-slice Binary Cross-Entropy losses for each demographic group $g \in \{1 \dots G\}$:
-$$\ell_{\text{sg}}^{(g)} = \frac{1}{|S_g|} \sum_{i \in S_g} \text{BCE}(\hat{y}_i, y_i)$$
-$$\ell_{\text{bpsn}}^{(g)} = \frac{1}{|B_g^+ \cup S_g^-|} \sum_{i \in B_g^+ \cup S_g^-} \text{BCE}(\hat{y}_i, y_i)$$
-$$\ell_{\text{bnsp}}^{(g)} = \frac{1}{|B_g^- \cup S_g^+|} \sum_{i \in B_g^- \cup S_g^+} \text{BCE}(\hat{y}_i, y_i)$$
+
+Per-slice Binary Cross-Entropy losses for each demographic group $g \in \{1, \dots, G\}$:
+
+$$
+\ell_{\text{sg}}^{(g)} = \frac{1}{|S_g|} \sum_{i \in S_g} \text{BCE}(\hat{y}_i, y_i)
+$$
+
+$$
+\ell_{\text{bpsn}}^{(g)} = \frac{1}{|B_g^+ \cup S_g^-|} \sum_{i \in B_g^+ \cup S_g^-} \text{BCE}(\hat{y}_i, y_i)
+$$
+
+$$
+\ell_{\text{bnsp}}^{(g)} = \frac{1}{|B_g^- \cup S_g^+|} \sum_{i \in B_g^- \cup S_g^+} \text{BCE}(\hat{y}_i, y_i)
+$$
 
 Aggregated via superlinear Power-Mean ($p = 5.0$, gradient scales as $L^4$):
-$$M_p(\ell_1, \dots, \ell_K) = \left( \frac{1}{K} \sum_{k=1}^K \ell_k^p \right)^{1/p}$$
 
-$$\mathcal{L}_{\text{primary}} = \frac{1}{4} \Big( \ell_{\text{overall}} + M_5(\ell_{\text{sg}}) + M_5(\ell_{\text{bpsn}}) + M_5(\ell_{\text{bnsp}}) \Big)$$
+$$
+M_p(\ell_1, \dots, \ell_K) = \left( \frac{1}{K} \sum_{k=1}^K \ell_k^p \right)^{1/p}
+$$
 
-$$\mathcal{L}_{\text{total}} = \frac{\mathcal{L}_{\text{primary}}(x) + \mathcal{L}_{\text{primary}}(x')}{2} + 0.2 \cdot \mathcal{L}_{\text{aux}}(x)$$
+$$
+\mathcal{L}_{\text{primary}} = \frac{1}{4} \Big( \ell_{\text{overall}} + M_5(\ell_{\text{sg}}) + M_5(\ell_{\text{bpsn}}) + M_5(\ell_{\text{bnsp}}) \Big)
+$$
+
+$$
+\mathcal{L}_{\text{total}} = \frac{\mathcal{L}_{\text{primary}}(x) + \mathcal{L}_{\text{primary}}(x')}{2} + 0.2 \cdot \mathcal{L}_{\text{aux}}(x)
+$$
 
 ---
 
 ### 3. Inference-Level LEACE Concept Erasure
 Post-hoc orthogonal projection on `[CLS]` embeddings ($\mathbf{h} \in \mathbb{R}^{768}$) to eliminate residual linear demographic predictability:
-$$P^* = I - VV^T$$
-$$\hat{\mathbf{h}} = P^* \mathbf{h}$$
+
+$$
+P^* = I - VV^T
+$$
+
+$$
+\hat{\mathbf{h}} = P^* \mathbf{h}
+$$
+
 where $V$ spans the cross-covariance directions of the 8 identity indicators computed on the 10k validation set in closed form.
 
 ---
@@ -60,7 +88,10 @@ where $V$ spans the cross-covariance directions of the 8 identity indicators com
 ---
 
 ### Demographic Fairness Audit (BPSN AUC)
-$$\text{BPSN AUC}_g = \text{AUC}(\{(y_i, \hat{y}_i) : i \in B_g^+ \cup S_g^-\})$$
+
+$$
+\text{BPSN AUC}_g = \text{AUC}(\{(y_i, \hat{y}_i) : i \in B_g^+ \cup S_g^-\})
+$$
 
 | Identity Subgroup | M0 Baseline BPSN | M2 Debiased BPSN | Gain ($\Delta$) | Subgroup AUC |
 | :--- | :---: | :---: | :---: | :---: |
